@@ -11,15 +11,17 @@
     <Description>Extremely Fast MessagePack(MsgPack) Serializer for C#(.NET, .NET Core, Unity, Xamarin).</Description>
     <PackageTags>MsgPack;MessagePack;Serialization;Formatter;Serializer;Unity;Xamarin</PackageTags>
     <AssemblyName>MessagePack</AssemblyName>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\MessagePack.UnityClient\Assets\Scripts\MessagePack\**\*.cs"
-             Exclude="..\MessagePack.UnityClient\Assets\Scripts\MessagePack\Annotations\**;
-                      ..\MessagePack.UnityClient\Assets\Scripts\MessagePack\Unity\**;
-                      ..\MessagePack.UnityClient\Assets\Scripts\MessagePack\T4\**;
-                      ..\MessagePack.UnityClient\Assets\Scripts\MessagePack\_InternalVisibleTo.cs" />
+    <Compile Include="..\MessagePack.UnityClient\Assets\Scripts\MessagePack\**\*.cs" Exclude="..\MessagePack.UnityClient\Assets\Scripts\MessagePack\Annotations\**;&#xD;&#xA;                      ..\MessagePack.UnityClient\Assets\Scripts\MessagePack\Unity\**;&#xD;&#xA;                      ..\MessagePack.UnityClient\Assets\Scripts\MessagePack\T4\**;&#xD;&#xA;                      ..\MessagePack.UnityClient\Assets\Scripts\MessagePack\_InternalVisibleTo.cs" />
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" Version="3.3.4" />
+    <PackageReference Include="Microsoft.NET.StringTools" PrivateAssets="compile" Version="17.7.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
+    <PackageReference Update="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.133" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="17.7.30" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,15 +31,6 @@
   <ItemGroup>
     <AdditionalFiles Include="$(TargetFramework)\PublicAPI.Shipped.txt" />
     <AdditionalFiles Include="$(TargetFramework)\PublicAPI.Unshipped.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.4" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.NET.StringTools" Version="17.7.0" PrivateAssets="compile" />
-    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
-    <PackageReference Update="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.133" />
-    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="17.7.30" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MessagePack.Annotations\MessagePack.Annotations.csproj" />
