@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputType>exe</OutputType>
     <DefineConstants>$(DefineConstants);DYNAMICCODEDUMPER</DefineConstants>
@@ -141,8 +141,6 @@
     <Compile Include="..\..\src\MessagePack.UnityClient\Assets\Scripts\Tests\Class1.cs">
       <Link>Class1.cs</Link>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Nerdbank.Streams" Version="2.8.57" />
     <PackageReference Include="Microsoft.NET.StringTools" Version="17.4.0" />
   </ItemGroup>
