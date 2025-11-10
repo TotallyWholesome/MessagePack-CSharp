@@ -7,18 +7,9 @@
     <PackageTags>MsgPack;MessagePack;Serialization;Formatter;Serializer;aspnetcore;aspnetcoremvc;NET9</PackageTags>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition="'$(TargetFramework)'=='netcoreapp3.1'">
-      <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MessagePack\MessagePack.csproj" />

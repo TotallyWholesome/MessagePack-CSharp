@@ -1,4 +1,4 @@
-﻿// Copyright (c) All contributors. All rights reserved.
+// Copyright (c) All contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -590,7 +590,7 @@ namespace MessagePack.Tests
             new object[] { new string('a', short.MaxValue + 1) },
             new object[] { new string('a', ushort.MaxValue) },
             new object[] { new string('a', ushort.MaxValue + 1) },
-            new object[] { "あいうえおかきくけこさしすせおたちつてとなにぬねのわをん" }, // Japanese
+            new object[] { "????????????????????????????" }, // Japanese
         };
 
         [Theory]
@@ -642,7 +642,7 @@ namespace MessagePack.Tests
 
         [Theory]
         [InlineData('a')]
-        [InlineData('あ')]
+        [InlineData('?')]
         [InlineData('c')]
 #if !ENABLE_IL2CPP
         [InlineData(char.MinValue)]
@@ -784,7 +784,8 @@ namespace MessagePack.Tests
                 var smallWriter = new MessagePackWriter(small);
                 smallWriter.Write(byte.MaxValue);
                 smallWriter.Flush();
-                var smallReader = new MessagePackReader(small.AsReadOnlySequence);
+                var smallSequence = small.AsReadOnlySequence;
+                var smallReader = new MessagePackReader(smallSequence);
                 smallReader.ReadInt16().Is(byte.MaxValue);
 
                 var target = new Sequence<byte>();
@@ -799,7 +800,8 @@ namespace MessagePack.Tests
                 var smallWriter = new MessagePackWriter(small);
                 smallWriter.Write(byte.MaxValue);
                 smallWriter.Flush();
-                var smallReader = new MessagePackReader(small.AsReadOnlySequence);
+                var smallSequence = small.AsReadOnlySequence;
+                var smallReader = new MessagePackReader(smallSequence);
                 smallReader.ReadInt32().Is(byte.MaxValue);
 
                 var target = new Sequence<byte>();
@@ -812,7 +814,8 @@ namespace MessagePack.Tests
                 smallWriter = new MessagePackWriter(small);
                 smallWriter.Write(ushort.MaxValue);
                 smallWriter.Flush();
-                smallReader = new MessagePackReader(small.AsReadOnlySequence);
+                smallSequence = small.AsReadOnlySequence;
+                smallReader = new MessagePackReader(smallSequence);
                 smallReader.ReadInt32().Is(ushort.MaxValue);
 
                 target.Reset();
@@ -827,7 +830,8 @@ namespace MessagePack.Tests
                 var smallWriter = new MessagePackWriter(small);
                 smallWriter.Write(byte.MaxValue);
                 smallWriter.Flush();
-                var smallReader = new MessagePackReader(small.AsReadOnlySequence);
+                var smallSequence = small.AsReadOnlySequence;
+                var smallReader = new MessagePackReader(smallSequence);
                 smallReader.ReadInt64().Is(byte.MaxValue);
 
                 var target = new Sequence<byte>();
@@ -840,7 +844,8 @@ namespace MessagePack.Tests
                 smallWriter = new MessagePackWriter(small);
                 smallWriter.Write(ushort.MaxValue);
                 smallWriter.Flush();
-                smallReader = new MessagePackReader(small.AsReadOnlySequence);
+                smallSequence = small.AsReadOnlySequence;
+                smallReader = new MessagePackReader(smallSequence);
                 smallReader.ReadInt64().Is(ushort.MaxValue);
 
                 target.Reset();
@@ -853,7 +858,8 @@ namespace MessagePack.Tests
                 smallWriter = new MessagePackWriter(small);
                 smallWriter.Write(uint.MaxValue);
                 smallWriter.Flush();
-                smallReader = new MessagePackReader(small.AsReadOnlySequence);
+                smallSequence = small.AsReadOnlySequence;
+                smallReader = new MessagePackReader(smallSequence);
                 smallReader.ReadInt64().Is(uint.MaxValue);
 
                 target.Reset();

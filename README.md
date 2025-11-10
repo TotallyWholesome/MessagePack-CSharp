@@ -1,4 +1,4 @@
-# MessagePack for C# (.NET, .NET Core, Unity, Xamarin)
+# MessagePack for C# (.NET 9)
 
 [![NuGet](https://img.shields.io/nuget/v/MessagePack.svg)](https://www.nuget.org/packages/messagepack)
 [![NuGet](https://img.shields.io/nuget/vpre/MessagePack.svg)](https://www.nuget.org/packages/messagepack)
@@ -68,7 +68,7 @@ MessagePack has a compact binary size and a full set of general purpose expressi
 
 This library is distributed via NuGet. Special [Unity support](#unity) is available, too.
 
-We target .NET Standard 2.0 with special optimizations for .NET Core 2.1+, making it compatible with most reasonably recent .NET runtimes such as Core 2.0 and later, Framework 4.6.1 and later, Mono 5.4 and later and Unity 2018.3 and later.
+This library targets .NET 9 with full support for modern C# 12 features and runtime optimizations. For legacy projects, previous versions supporting .NET Standard 2.0 are available.
 The library code is pure C# (with Just-In-Time IL code generation on some platforms).
 
 ### NuGet packages
@@ -515,7 +515,7 @@ IUnionSample data = new BarClass { OPQ = "FooBar" };
 
 var bin = MessagePackSerializer.Serialize(data);
 
-// Union is serialized to two-length array, [key, object]
+/ / Union is serialized to two-length array, [key, object]
 // [1,["FooBar"]]
 Console.WriteLine(MessagePackSerializer.ConvertToJson(bin));
 ```
@@ -1309,7 +1309,7 @@ An `IFormatterResolver` is storage of typed serializers. The `MessagePackSeriali
 | DynamicObjectResolver | Resolver of class and struct made by MessagePackObjectAttribute. It uses dynamic code generation to create dynamic formatter. |
 | DynamicContractlessObjectResolver | Resolver of all classes and structs. It does not needs `MessagePackObjectAttribute` and serialized key as string(same as marked `[MessagePackObject(true)]`). |
 | DynamicObjectResolverAllowPrivate | Same as DynamicObjectResolver but allow serialize/deserialize private members. |
-| DynamicContractlessObjectResolverAllowPrivate | Same as DynamicContractlessObjectResolver but allow serialize/deserialize private members. |
+| DynamicContractlessObjectResolverAllowPrivate | Same as ContractlessStandardResolver but allow serialize/deserialize private members. |
 | TypelessObjectResolver | Used for `object`, embed .NET type in binary by `ext(100)` format so no need to pass type in deserialization.  |
 | TypelessContractlessStandardResolver | Composited resolver. It resolves in the following order `nativedatetime -> builtin -> attribute -> dynamic enum -> dynamic generic -> dynamic union -> dynamic object -> dynamiccontractless -> typeless`. This is the default of `MessagePackSerializer.Typeless`  |
 
@@ -1373,7 +1373,8 @@ public class SampleCustomResolver : IFormatterResolver
     {
     }
 
-    // GetFormatter<T>'s get cost should be minimized so use type cache.
+    // GetFormatter<T>'s get cost should be minimized for reduce type generation size!
+    // use outer helper method.
     public IMessagePackFormatter<T> GetFormatter<T>()
     {
         return FormatterCache<T>.Formatter;
@@ -1413,300 +1414,3 @@ internal static class SampleCustomResolverGetFormatterHelper
         return null;
     }
 }
-```
-
-## MessagePackFormatterAttribute
-
-MessagePackFormatterAttribute is a lightweight extension point of class, struct, interface, enum and property/field. This is like Json.NET's JsonConverterAttribute. For example, serialize private field, serialize x10 formatter.
-
-```csharp
-[MessagePackFormatter(typeof(CustomObjectFormatter))]
-public class CustomObject
-{
-    string internalId;
-
-    public CustomObject()
-    {
-        this.internalId = Guid.NewGuid().ToString();
-    }
-
-    // serialize/deserialize internal field.
-    class CustomObjectFormatter : IMessagePackFormatter<CustomObject>
-    {
-        public void Serialize(ref MessagePackWriter writer, CustomObject value, MessagePackSerializerOptions options)
-        {
-            options.Resolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.internalId, options);
-        }
-
-        public CustomObject Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
-        {
-            var id = options.Resolver.GetFormatterWithVerify<string>().Deserialize(ref reader, options);
-            return new CustomObject { internalId = id };
-        }
-    }
-}
-
-// per field, member
-
-public class Int_x10Formatter : IMessagePackFormatter<int>
-{
-    public int Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
-    {
-        return reader.ReadInt32() * 10;
-    }
-
-    public void Serialize(ref MessagePackWriter writer, int value, MessagePackSerializerOptions options)
-    {
-        writer.WriteInt32(value * 10);
-    }
-}
-
-[MessagePackObject]
-public class MyClass
-{
-    // You can attach custom formatter per member.
-    [Key(0)]
-    [MessagePackFormatter(typeof(Int_x10Formatter))]
-    public int MyProperty1 { get; set; }
-}
-```
-
-Formatter is retrieved by `AttributeFormatterResolver`, it is included in `StandardResolver`.
-
-## IgnoreFormatter
-
-`IgnoreFormatter<T>` is lightweight extension point of class and struct. If there exists types that can't be serialized, you can register `IgnoreFormatter<T>` that serializes those to nil/null.
-
-```csharp
-// CompositeResolver can set custom formatter.
-var resolver = MessagePack.Resolvers.CompositeResolver.Create(
-    new IMessagePackFormatter[]
-    {
-        // for example, register reflection infos (can not serialize)
-        new IgnoreFormatter<MethodBase>(),
-        new IgnoreFormatter<MethodInfo>(),
-        new IgnoreFormatter<PropertyInfo>(),
-        new IgnoreFormatter<FieldInfo>()
-    },
-    new IFormatterResolver[]
-    {
-        ContractlessStandardResolver.Instance
-    });
-```
-
-## Reserved Extension Types
-
-MessagePack for C# already used some MessagePack extension type codes, be careful to avoid using the same ext code for other purposes.
-
-Range | Reserved for
---|--
-\[-128, -1\] | Reserved by the msgpack spec for predefined types
-\[30, 120) | Reserved for this library's use to support common types in .NET
-
-This leaves the following ranges for your use:
-
-- \[0, 30)
-- \[120, 127]
-
-Within the *reserved* ranges, this library defines or implements extensions that use these type codes:
-
-| Code | Type | Use by |
-| ---- | ---- | --- |
-| -1   | DateTime | MessagePack-spec reserved for timestamp |
-| 30   | Vector2[] | for Unity, UnsafeBlitFormatter |
-| 31   | Vector3[] | for Unity, UnsafeBlitFormatter |
-| 32   | Vector4[] | for Unity, UnsafeBlitFormatter |
-| 33   | Quaternion[] | for Unity, UnsafeBlitFormatter |
-| 34   | Color[] | for Unity, UnsafeBlitFormatter |
-| 35   | Bounds[] | for Unity, UnsafeBlitFormatter |
-| 36   | Rect[] | for Unity, UnsafeBlitFormatter |
-| 37   | Int[] | for Unity, UnsafeBlitFormatter |
-| 38   | Float[] | for Unity, UnsafeBlitFormatter |
-| 39   | Double[] | for Unity, UnsafeBlitFormatter |
-| 98   | All | MessagePackCompression.Lz4BlockArray |
-| 99   | All | MessagePackCompression.Lz4Block |
-| 100  | object | TypelessFormatter |
-
-## Unity support
-
-Unity lowest supported version is `2018.3`, API Compatibility Level supports both `.NET 4.x` and `.NET Standard 2.0`.
-
-You can install the `unitypackage` from the [releases][Releases] page.
-If your build targets .NET Framework 4.x and runs on mono, you can use it as is.
-But if your build targets IL2CPP, you can not use `Dynamic***Resolver`, so it is required to use pre-code generation. Please see [pre-code generation section](#aot).
-
-MessagePack for C# includes some additional `System.*.dll` libraries that originally provides in NuGet. They are located under `Plugins`. If other packages use these libraries (e.g. Unity Collections package using `System.Runtime.CompilerServices.Unsafe.dll`), to avoid conflicts, please delete the DLL under `Plugins`.
-
-Currently `CompositeResolver.Create` does not work on IL2CPP, so it is recommended to use `StaticCompositeResolver.Instance.Register` instead.
-
-In Unity, MessagePackSerializer can serialize `Vector2`, `Vector3`, `Vector4`, `Quaternion`, `Color`, `Bounds`, `Rect`, `AnimationCurve`, `Keyframe`, `Matrix4x4`, `Gradient`, `Color32`, `RectOffset`, `LayerMask`, `Vector2Int`, `Vector3Int`, `RangeInt`, `RectInt`, `BoundsInt` and their nullable, array and list types with the built-in extension `UnityResolver`. It is included in StandardResolver by default.
-
-MessagePack for C# has an additional unsafe extension.  `UnsafeBlitResolver` is special resolver for extremely fast but unsafe serialization/deserialization of struct arrays.
-
-![image](https://cloud.githubusercontent.com/assets/46207/23837633/76589924-07ce-11e7-8b26-e50eab548938.png)
-
-x20 faster Vector3[] serialization than native JsonUtility. If use `UnsafeBlitResolver`, serialization uses a special format (ext:typecode 30~39)  for `Vector2[]`, `Vector3[]`, `Quaternion[]`, `Color[]`, `Bounds[]`, `Rect[]`. If use `UnityBlitWithPrimitiveArrayResolver`, it supports `int[]`, `float[]`, `double[]` too. This special feature is useful for serializing Mesh (many `Vector3[]`) or many transform positions.
-
-If you want to use unsafe resolver, register `UnityBlitResolver` or `UnityBlitWithPrimitiveArrayResolver`.
-
-Here is sample of configuration.
-
-```csharp
-StaticCompositeResolver.Instance.Register(
-    MessagePack.Unity.UnityResolver.Instance,
-    MessagePack.Unity.Extension.UnityBlitWithPrimitiveArrayResolver.Instance,
-    MessagePack.Resolvers.StandardResolver.Instance
-);
-
-var options = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
-MessagePackSerializer.DefaultOptions = options;
-```
-
-The `MessagePack.UnityShims` NuGet package is for .NET server-side serialization support to communicate with Unity. It includes shims for Vector3 etc and the Safe/Unsafe serialization extension.
-
-If you want to share a class between Unity and a server, you can use `SharedProject` or `Reference as Link` or a glob reference (with `LinkBase`), etc. Anyway, you need to share at source-code level. This is a sample project structure using a glob reference (recommended).
-
-- ServerProject(.NET 4.6/.NET Core/.NET Standard)
-  - \[`<Compile Include="..\UnityProject\Assets\Scripts\Shared\**\*.cs" LinkBase="Shared" />`\]
-  - \[MessagePack\]
-  - \[MessagePack.UnityShims\]
-- UnityProject
-  - \[Concrete SharedCodes\]
-  - \[MessagePack\](not dll/NuGet, use MessagePack.Unity.unitypackage's sourcecode)
-
-## <a name="aot"></a>AOT Code Generation (support for Unity/Xamarin)
-
-By default, MessagePack for C# serializes custom objects by [generating IL](https://msdn.microsoft.com/en-us/library/system.reflection.emit.ilgenerator.aspx) on the fly at runtime to create custom, highly tuned formatters for each type. This code generation has a minor upfront performance cost.
-Because strict-AOT environments such as Xamarin and Unity IL2CPP forbid runtime code generation, MessagePack provides a way for you to run a code generator ahead of time as well.
-
-> Note: When using Unity, dynamic code generation only works when targeting .NET Framework 4.x + mono runtime.
-For all other Unity targets, AOT is required.
-
-If you want to avoid the upfront dynamic generation cost or you need to run on Xamarin or Unity, you need AOT code generation. `mpc` (MessagePackCompiler) is the code generator of MessagePack for C#. mpc uses [Roslyn](https://github.com/dotnet/roslyn) to analyze source code.
-
-First of all, mpc requires [.NET Core 3 Runtime](https://dotnet.microsoft.com/download). The easiest way to acquire and run mpc is as a dotnet tool.
-
-```
-dotnet tool install --global MessagePack.Generator
-```
-
-Installing it as a local tool allows you to include the tools and versions that you use in your source control system. Run these commands in the root of your repo:
-
-```
-dotnet new tool-manifest
-dotnet tool install MessagePack.Generator
-```
-
-Check in your `.config\dotnet-tools.json` file. On another machine you can "restore" your tool using the `dotnet tool restore` command.
-
-Once you have the tool installed, simply invoke using `dotnet mpc` within your repo:
-
-```
-dotnet mpc --help
-```
-
-Alternatively, you can download mpc from the [releases][Releases] page, that includes platform native binaries (that don't require a separate dotnet runtime).
-
-```
-Usage: mpc [options...]
-
-Options:
-  -i, -input <String>                                Input path to MSBuild project file or the directory containing Unity source files. (Required)
-  -o, -output <String>                               Output file path(.cs) or directory(multiple generate file). (Required)
-  -c, -conditionalSymbol <String>                    Conditional compiler symbols, split with ','. (Default: null)
-  -r, -resolverName <String>                         Set resolver name. (Default: GeneratedResolver)
-  -n, -namespace <String>                            Set namespace root name. (Default: MessagePack)
-  -m, -useMapMode <Boolean>                          Force use map mode serialization. (Default: False)
-  -ms, -multipleIfDirectiveOutputSymbols <String>    Generate #if-- files by symbols, split with ','. (Default: null)
-```
-
-`mpc` targets C# code with `[MessagePackObject]` or `[Union]` annotations.
-
-```cmd
-// Simple Sample:
-dotnet mpc -i "..\src\Sandbox.Shared.csproj" -o "MessagePackGenerated.cs"
-
-// Use force map simulate DynamicContractlessObjectResolver
-dotnet mpc -i "..\src\Sandbox.Shared.csproj" -o "MessagePackGenerated.cs" -m
-```
-
-By default, `mpc` generates the resolver as `MessagePack.Resolvers.GeneratedResolver` and formatters as`MessagePack.Formatters.*`.
-
-Here is the full sample code to register a generated resolver in Unity.
-
-```csharp
-using MessagePack;
-using MessagePack.Resolvers;
-using UnityEngine;
-
-public class Startup
-{
-    static bool serializerRegistered = false;
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void Initialize()
-    {
-        if (!serializerRegistered)
-        {
-            StaticCompositeResolver.Instance.Register(
-                 MessagePack.Resolvers.GeneratedResolver.Instance,
-                 MessagePack.Resolvers.StandardResolver.Instance
-            );
-
-            var option = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
-
-            MessagePackSerializer.DefaultOptions = option;
-            serializerRegistered = true;
-        }
-    }
-
-#if UNITY_EDITOR
-
-
-    [UnityEditor.InitializeOnLoadMethod]
-    static void EditorInitialize()
-    {
-        Initialize();
-    }
-
-#endif
-}
-```
-
-In Unity, you can use MessagePack CodeGen windows at `Windows -> MessagePack -> CodeGenerator`.
-
-![](https://user-images.githubusercontent.com/46207/69414381-f14da400-0d55-11ea-9f8d-9af448d347dc.png)
-
-Install the .NET Core runtime, install mpc (as a .NET Core Tool as described above), and execute `dotnet mpc`. Currently this tool is experimental so please tell me your opinion.
-
-In Xamarin, you can install the [the `MessagePack.MSBuild.Tasks` NuGet package](doc/msbuildtask.md) into your projects to pre-compile fast serialization code and run in environments where JIT compilation is not allowed.
-
-## RPC
-
-MessagePack advocated [MessagePack RPC](https://github.com/msgpack-rpc/msgpack-rpc), but work on it has stopped and it is not widely used.
-
-### MagicOnion
-
-I've created a gRPC based MessagePack HTTP/2 RPC streaming framework called [MagicOnion](https://github.com/Cysharp/MagicOnion). gRPC usually communicates with Protocol Buffers using IDL. But MagicOnion uses MessagePack for C# and does not need IDL. When communicating C# to C#, schemaless (or rather C# classes as schema) is better than using IDL.
-
-### StreamJsonRpc
-
-The StreamJsonRpc library is based on [JSON-RPC](https://www.jsonrpc.org/) and includes [a pluggable formatter architecture](https://github.com/microsoft/vs-streamjsonrpc/blob/master/doc/extensibility.md#alternative-formatters) and as of v2.3 includes [MessagePack support](https://github.com/microsoft/vs-streamjsonrpc/blob/master/doc/extensibility.md#message-formatterss).
-
-## How to build
-
-See our [contributor's guide](CONTRIBUTING.md).
-
-## Author Info
-
-Yoshifumi Kawai (a.k.a. neuecc) is a software developer in Japan.
-He is the Director/CTO at Grani, Inc.
-Grani is a mobile game developer company in Japan and well known for using C#.
-He is awarding Microsoft MVP for Visual C# since 2011.
-He is known as the creator of [UniRx](https://github.com/neuecc/UniRx/) (Reactive Extensions for Unity)
-
-* Blog: [https://medium.com/@neuecc](https://medium.com/@neuecc) (English)
-* Blog: [http://neue.cc/](http://neue.cc/) (Japanese)
-* Twitter: [https://twitter.com/neuecc](https://twitter.com/neuecc) (Japanese)
-
-[Releases]: https://github.com/neuecc/MessagePack-CSharp/releases

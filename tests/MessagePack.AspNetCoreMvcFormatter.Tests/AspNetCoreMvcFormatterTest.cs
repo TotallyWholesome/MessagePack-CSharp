@@ -299,6 +299,7 @@ namespace MessagePack.Tests.ExtensionTests
         private class NonSeekableReadStream : Stream
         {
             private Stream inner;
+            private bool disposed;
 
             public NonSeekableReadStream(byte[] data)
                 : this(new MemoryStream(data))
@@ -357,6 +358,21 @@ namespace MessagePack.Tests.ExtensionTests
             {
                 count = Math.Max(count, 1);
                 return this.inner.ReadAsync(buffer, offset, count, cancellationToken);
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                if (!disposed)
+                {
+                    if (disposing)
+                    {
+                        this.inner?.Dispose();
+                    }
+
+                    disposed = true;
+                }
+
+                base.Dispose(disposing);
             }
         }
     }

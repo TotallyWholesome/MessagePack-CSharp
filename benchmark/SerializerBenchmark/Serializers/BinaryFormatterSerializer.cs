@@ -2,12 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
+
+#pragma warning disable SYSLIB0011 // BinaryFormatter is obsolete - but needed for benchmark comparisons
 using System.Runtime.Serialization.Formatters.Binary;
+#pragma warning restore SYSLIB0011
 
 namespace Benchmark.Serializers
 {
     public class BinaryFormatterSerializer : SerializerBase
     {
+#pragma warning disable SYSLIB0011 // BinaryFormatter is obsolete - but needed for benchmark comparisons
         public override T Deserialize<T>(object input)
         {
             using (var ms = new MemoryStream((byte[])input))
@@ -25,6 +29,7 @@ namespace Benchmark.Serializers
                 return ms.ToArray();
             }
         }
+#pragma warning restore SYSLIB0011
 
         public override string ToString()
         {

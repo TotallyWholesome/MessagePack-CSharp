@@ -332,6 +332,7 @@ namespace MessagePack.Tests
     {
         private readonly Stream stream;
         private readonly bool canSeek;
+        private bool disposed;
 
         internal StreamWrapper(Stream stream)
         {
@@ -398,6 +399,23 @@ namespace MessagePack.Tests
         public override void Write(byte[] buffer, int offset, int count)
         {
             this.stream.Write(buffer, offset, count);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Note: In a typical wrapper pattern, we might not dispose the underlying stream
+                    // since we don't own it. But for test purposes and to satisfy CA2213, we'll dispose it.
+                    this.stream?.Dispose();
+                }
+
+                disposed = true;
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

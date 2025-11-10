@@ -76,17 +76,6 @@ namespace DynamicCodeDumper
             {
                 Console.WriteLine(ex);
             }
-            finally
-            {
-                AssemblyBuilder a1 = DynamicObjectResolver.Instance.Save();
-                AssemblyBuilder a2 = DynamicUnionResolver.Instance.Save();
-                AssemblyBuilder a3 = DynamicEnumResolver.Instance.Save();
-                AssemblyBuilder a4 = DynamicContractlessObjectResolver.Instance.Save();
-                ////var a5 = AutomataKeyGen.Save();
-
-                ////Verify(a5);
-            }
-            ////Verify(a1, a2, a3, a4);
         }
 
         private static void Verify(params AssemblyBuilder[] builders)

@@ -4,6 +4,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputType>exe</OutputType>
     <DefineConstants>$(DefineConstants);DYNAMICCODEDUMPER</DefineConstants>
+    <NoWarn>$(NoWarn);SYSLIB0051</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\src\MessagePack.UnityClient\Assets\Scripts\MessagePack\Annotations\Attributes.cs">

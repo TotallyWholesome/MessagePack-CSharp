@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);CS0649</NoWarn>
+    <NoWarn>$(NoWarn);CS0649;SYSLIB0051</NoWarn>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <LangVersion>latest</LangVersion>

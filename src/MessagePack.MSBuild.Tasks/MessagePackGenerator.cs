@@ -18,9 +18,10 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace MessagePack.MSBuild.Tasks
 {
-    public class MessagePackGenerator : Microsoft.Build.Utilities.Task, ICancelableTask
+    public class MessagePackGenerator : Microsoft.Build.Utilities.Task, ICancelableTask, IDisposable
     {
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
+        private bool disposed;
 
         [Required]
         public ITaskItem[] Compile { get; set; } = null!;
@@ -45,6 +46,25 @@ namespace MessagePack.MSBuild.Tasks
         internal CancellationToken CancellationToken => this.cts.Token;
 
         public void Cancel() => this.cts.Cancel();
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    this.cts.Dispose();
+                }
+
+                disposed = true;
+            }
+        }
 
         public override bool Execute()
         {
