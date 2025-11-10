@@ -36,13 +36,13 @@ namespace SharedData
     [MessagePackObject]
     public class FirstSimpleData : IEquatable<FirstSimpleData>
     {
-        [Key(0)]
+        [System.Runtime.Serialization.DataMember(Order = 0)]
         public int Prop1 { get; set; }
 
-        [Key(1)]
+        [System.Runtime.Serialization.DataMember(Order = 1)]
         public string Prop2 { get; set; }
 
-        [Key(2)]
+        [System.Runtime.Serialization.DataMember(Order = 2)]
         public int Prop3 { get; set; }
 
         public bool Equals(FirstSimpleData other)
