@@ -87,6 +87,7 @@ namespace SharedData
 
     public class OreOreFormatter : IMessagePackFormatter<int>
     {
+        // ERROR: MessagePackSerializerOptions type not found. The MessagePack library is missing from project dependencies. Please add the MessagePack NuGet package to your project to resolve this error.
         public int Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             throw new NotImplementedException();
