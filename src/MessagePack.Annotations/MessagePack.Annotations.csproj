@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard1.3</TargetFrameworks>
     <NoWarn>$(NoWarn);CS0649</NoWarn>
     <RootNamespace>MessagePack</RootNamespace>
 
@@ -13,9 +13,6 @@
 
   <ItemGroup>
     <Compile Include="..\MessagePack.UnityClient\Assets\Scripts\MessagePack\Annotations\**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Update="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.133" />
     <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="17.7.30" />
