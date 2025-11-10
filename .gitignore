@@ -281,3 +281,4 @@ nuget/unity*
 
 # BenchmarkDotNet results
 BenchmarkDotNet.Artifacts/
+*.md
