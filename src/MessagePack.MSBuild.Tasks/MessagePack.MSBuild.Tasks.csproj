@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <LangVersion>8</LangVersion>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
 
     <NoPackageAnalysis>true</NoPackageAnalysis>
@@ -13,8 +13,8 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <IsPackable>true</IsPackable>
     <Title>MessagePack CodeGenerator Tasks</Title>
-    <Description>MSBuild Tasks of MessagePack for C#.</Description>
-    <PackageTags>MsgPack;MessagePack;Serialization;Formatter;Serializer;Unity;Xamarin</PackageTags>
+    <Description>MSBuild Tasks of MessagePack for C# (.NET 9).</Description>
+    <PackageTags>MsgPack;MessagePack;Serialization;Formatter;Serializer;Unity;Xamarin;NET9</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

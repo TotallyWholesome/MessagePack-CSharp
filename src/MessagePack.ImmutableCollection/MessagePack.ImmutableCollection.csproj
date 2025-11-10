@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
 
     <IsPackable>true</IsPackable>
-    <Title>MessagePack for C# Extension Support for ImmutableCollection</Title>
+    <Title>MessagePack for C# (.NET 9) Extension Support for ImmutableCollection</Title>
     <Description>Deprecated package to add System.Collections.Immutable support to MessagePack. This is now built into the main package.</Description>
-    <PackageTags>MsgPack;MessagePack;Serialization;Formatter;Serializer</PackageTags>
+    <PackageTags>MsgPack;MessagePack;Serialization;Formatter;Serializer;NET9</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

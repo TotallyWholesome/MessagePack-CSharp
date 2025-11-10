@@ -1,14 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <NoWarn>$(NoWarn);CS0649</NoWarn>
     <RootNamespace>MessagePack</RootNamespace>
 
     <IsPackable>true</IsPackable>
-    <Title>MessagePack annotations for C#</Title>
-    <Description>Attributes and interfaces for .NET types serializable with MessagePack.</Description>
-    <PackageTags>MsgPack;MessagePack;Serialization;Formatter;Serializer;Unity;Xamarin</PackageTags>
+    <Title>MessagePack annotations for C# (.NET 9) (.NET 9)</Title>
+    <Description>Attributes and interfaces for .NET types serializable with MessagePack targeting modern .NET 9.</Description>
+    <PackageTags>MsgPack;MessagePack;Serialization;Formatter;Serializer;NET9</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
